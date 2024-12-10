@@ -53,17 +53,15 @@ int main(int argc, char** argv) {
     MPI_Request request;
 
     MPI_Iscatter(gatherData, N/size, MPI_INT, IrecvData, N/size, MPI_INT, 0, MPI_COMM_WORLD, &request);
+    MPI_Wait(&request, MPI_STATUS_IGNORE);
 
     for (int i = 0; i < N/size; i++) {
         IrecvData[i] *= rank;
     }
 
-    MPI_Wait(&request, MPI_STATUS_IGNORE);
-
     int IGatherData[N];
     MPI_Igather(IrecvData, N/size, MPI_INT, IGatherData, N/size, MPI_INT, 0, MPI_COMM_WORLD, &request);
     MPI_Wait(&request, MPI_STATUS_IGNORE);
-
     if (rank == 0) {
       endwtime = MPI_Wtime();
       std::cout << "Asynchronous data exchange took:" << endwtime - startwtime << " sec."<< std::endl;
